@@ -30,6 +30,8 @@ protected:
 private:
 	void initGrid();
 
+	void initCube();
+
 	// Fields related to the shader and uniforms.
 	ShaderProgram m_shader;
 	GLint P_uni; // Uniform location for Projection matrix.
@@ -40,6 +42,10 @@ private:
 	// Fields related to grid geometry.
 	GLuint m_grid_vao; // Vertex Array Object
 	GLuint m_grid_vbo; // Vertex Buffer Object
+
+	GLuint m_cube_vao; // Vertex Array Object
+        GLuint m_cube_vbo; // Vertex Buffer Object
+	GLuint m_cube_ebo; // Element Buffer Object
 
 	// Matrices controlling the camera and projection.
 	glm::mat4 proj;

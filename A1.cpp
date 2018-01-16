@@ -52,6 +52,8 @@ void A1::init()
 	col_uni = m_shader.getUniformLocation( "colour" );
 
 	initGrid();
+	
+	initCube();
 
 	// Set up initial view and projection matrices (need to do this here,
 	// since it depends on the GLFW window being set up correctly).
@@ -65,6 +67,62 @@ void A1::init()
 		float( m_framebufferWidth ) / float( m_framebufferHeight ),
 		1.0f, 1000.0f );
 }
+
+void A1::initCube()
+{
+	float vertices[] = {
+    		0.0f, 0.0f, 0.0f, 
+     		0.0f, 1.0f, 0.0f,  
+    		1.0f, 0.0f, 0.0f,  
+    		1.0f, 1.0f, 0.0f,   
+		0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 1.0f,  
+                1.0f, 0.0f, 1.0f,  
+                1.0f, 1.0f, 1.0f 
+	};
+	unsigned int indices[] = {  // note that we start from 0!
+    		0, 1, 3,   // bottom
+    		0, 2, 3,    // bottom
+		2, 6, 3,  // side front
+		3, 7, 6,
+		1, 5, 3,  // side right
+		3, 5, 7,
+		0, 2, 6,   // side left
+		0, 4, 6,  
+		0, 1, 5,   // side back
+		0, 4, 5,  
+		4, 6, 7, // top
+		4, 5, 7
+	};
+
+	// Create the vertex array to record buffer assignments.
+        glGenVertexArrays( 1, &m_cube_vao );
+        glBindVertexArray( m_cube_vao );
+
+        // Create the cube vertex buffer
+        glGenBuffers( 1, &m_cube_vbo );
+        glBindBuffer( GL_ARRAY_BUFFER, m_cube_vbo );
+        glBufferData( GL_ARRAY_BUFFER, sizeof(vertices),
+                vertices, GL_STATIC_DRAW );
+
+	glGenBuffers( 1, &m_cube_ebo );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_cube_ebo );
+	glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(indices),
+                indices, GL_STATIC_DRAW );
+
+        // Specify the means of extracting the position values properly.
+        GLint posAttrib = m_shader.getAttribLocation( "position" );
+        glEnableVertexAttribArray( posAttrib );
+        glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
+
+        // Reset state to prevent rogue code from messing with *my*
+        // stuff!
+        glBindVertexArray( 0 );
+        glBindBuffer( GL_ARRAY_BUFFER, 0 );
+        glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+
+        CHECK_GL_ERRORS;
+}; 
 
 void A1::initGrid()
 {
@@ -207,6 +265,11 @@ void A1::draw()
 		glDrawArrays( GL_LINES, 0, (3+DIM)*4 );
 
 		// Draw the cubes
+		glBindVertexArray( m_cube_vao );
+		glUniform3f( col_uni, 1, 1, 1);
+		glUniform3f( col_uni, 1, 1, 1 );
+		glDrawElements( GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
 		// Highlight the active square.
 	m_shader.disable();
 
