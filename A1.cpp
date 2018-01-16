@@ -16,7 +16,7 @@ static const size_t DIM = 16;
 //----------------------------------------------------------------------------------------
 // Constructor
 A1::A1()
-	: current_col( 0 ), gridInfo(DIM)
+	: current_col( 0 ), gridInfo(DIM), currX(0.0f), currY(0.0f)
 {
 	colour[0] = 0.0f;
 	colour[1] = 0.0f;
@@ -54,6 +54,8 @@ void A1::init()
 	initGrid();
 	
 	initCube();
+	
+	initSquare();
 
 	// Set up initial view and projection matrices (need to do this here,
 	// since it depends on the GLFW window being set up correctly).
@@ -123,6 +125,43 @@ void A1::initCube()
 
         CHECK_GL_ERRORS;
 }; 
+
+void A1::initSquare()
+{
+	float vertices[] = {
+		0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 1.0f
+	};
+	unsigned int indices[] = {
+		0, 1, 3,
+		0, 2, 3
+	};
+
+	glGenVertexArrays( 1, &m_square_vao);
+	glBindVertexArray(m_square_vao);
+	
+	glGenBuffers(1, &m_square_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_square_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW );
+	
+	glGenBuffers(1, &m_square_ebo);
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_square_ebo);
+	glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	
+	GLint posAttrib = m_shader.getAttribLocation("position");
+	
+	glEnableVertexAttribArray(posAttrib);
+	glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
+	
+	glBindVertexArray(0);
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+        glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+
+        CHECK_GL_ERRORS;
+}; 
+
 
 void A1::initGrid()
 {
@@ -285,12 +324,17 @@ void A1::draw()
 		gridInfo.setHeight(0, 0, 1);
 		gridInfo.setHeight(2, 2, 2);
 		drawCubes(W);
-		//glDrawElements( GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		//W = glm::translate(W, vec3(0, 1, 0));
-		//glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( W ) );
-		//glDrawElements( GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 		// Highlight the active square.
+		glDisable( GL_DEPTH_TEST );
+
+		glBindVertexArray(m_square_vao);
+		W = glm::translate( W, vec3(currX, gridInfo.getHeight(currX, currY), currY));
+		glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( W ) );
+		glUniform3f( col_uni, 0, 0, 0 );
+		glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		 
+
 	m_shader.disable();
 
 	// Restore defaults

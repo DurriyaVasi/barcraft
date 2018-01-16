@@ -34,6 +34,7 @@ private:
 
 	void initCube();
 	void drawCubes(glm::mat4 W);
+	void initSquare();
 
 	// Fields related to the shader and uniforms.
 	ShaderProgram m_shader;
@@ -50,6 +51,10 @@ private:
         GLuint m_cube_vbo; // Vertex Buffer Object
 	GLuint m_cube_ebo; // Element Buffer Object
 
+	GLuint m_square_vao; // Vertex Array Object
+        GLuint m_square_vbo; // Vertex Buffer Object
+        GLuint m_square_ebo; // Element Buffer Object
+
 	// Matrices controlling the camera and projection.
 	glm::mat4 proj;
 	glm::mat4 view;
@@ -57,5 +62,7 @@ private:
 	float colour[3];
 	int current_col;
 	Grid gridInfo;
+	float currX;
+	float currY;
 	
 };
