@@ -16,7 +16,7 @@ static const size_t DIM = 16;
 //----------------------------------------------------------------------------------------
 // Constructor
 A1::A1()
-	: current_col( 0 )
+	: current_col( 0 ), gridInfo(DIM)
 {
 	colour[0] = 0.0f;
 	colour[1] = 0.0f;
@@ -66,7 +66,7 @@ void A1::init()
 		glm::radians( 45.0f ),
 		float( m_framebufferWidth ) / float( m_framebufferHeight ),
 		1.0f, 1000.0f );
-}
+}	
 
 void A1::initCube()
 {
@@ -242,6 +242,22 @@ void A1::guiLogic()
 	}
 }
 
+void A1::drawCubes(mat4 W) {
+	for (int i = 0; i < DIM; i++) {
+		for (int j = 0; j < DIM; j++) {
+			int height = gridInfo.getHeight(i, j);
+			if (height == 0) {
+				continue;
+			}
+			for (int k = 0; k < height; k++) {
+				mat4 T = glm::translate(W, vec3(i, k, j));
+				glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( T ) );
+                		glDrawElements( GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+			}
+		}
+	}			
+}
+
 //----------------------------------------------------------------------------------------
 /*
  * Called once per frame, after guiLogic().
@@ -266,9 +282,13 @@ void A1::draw()
 
 		// Draw the cubes
 		glBindVertexArray( m_cube_vao );
-		glUniform3f( col_uni, 1, 1, 1);
-		glUniform3f( col_uni, 1, 1, 1 );
-		glDrawElements( GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		gridInfo.setHeight(0, 0, 1);
+		gridInfo.setHeight(2, 2, 2);
+		drawCubes(W);
+		//glDrawElements( GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		//W = glm::translate(W, vec3(0, 1, 0));
+		//glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( W ) );
+		//glDrawElements( GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 		// Highlight the active square.
 	m_shader.disable();

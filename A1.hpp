@@ -1,6 +1,8 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "cs488-framework/CS488Window.hpp"
 #include "cs488-framework/OpenGLImport.hpp"
@@ -31,6 +33,7 @@ private:
 	void initGrid();
 
 	void initCube();
+	void drawCubes(glm::mat4 W);
 
 	// Fields related to the shader and uniforms.
 	ShaderProgram m_shader;
@@ -53,6 +56,6 @@ private:
 
 	float colour[3];
 	int current_col;
-
+	Grid gridInfo;
 	
 };
