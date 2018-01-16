@@ -321,8 +321,6 @@ void A1::draw()
 
 		// Draw the cubes
 		glBindVertexArray( m_cube_vao );
-		gridInfo.setHeight(0, 0, 1);
-		gridInfo.setHeight(2, 2, 2);
 		drawCubes(W);
 
 		// Highlight the active square.
@@ -431,8 +429,34 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 
 	// Fill in with event handling code...
 	if( action == GLFW_PRESS ) {
-		// Respond to some key events.
+		if (key == GLFW_KEY_UP) {
+			currY = currY - (1.0);
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_DOWN) {
+			currY = currY + (1.0);
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_LEFT) {
+                        currX = currX - (1.0);
+                        eventHandled = true;
+                }
+		if (key == GLFW_KEY_RIGHT) {
+                        currX = currX + (1.0);
+                        eventHandled = true;
+                }
+		if (key == GLFW_KEY_SPACE) {
+			int oldHeight = gridInfo.getHeight(currX, currY);
+                        gridInfo.setHeight(currX, currY, oldHeight + 1);
+                        eventHandled = true;
+                }
+		if (key == GLFW_KEY_BACKSPACE) {
+			int oldHeight = gridInfo.getHeight(currX, currY);
+			if (oldHeight > 0) {
+                        	gridInfo.setHeight(currX, currY, oldHeight - 1);
+			}
+                        eventHandled = true;
+                }
 	}
-
 	return eventHandled;
 }
