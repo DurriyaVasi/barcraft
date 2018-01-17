@@ -73,5 +73,8 @@ private:
                 { 0.0f, 1.0f, 1.0f },
                 { 0.5f, 0.5f, 1.0f }
         };
-	bool shiftKeyPressed;	
+	bool shiftKeyPressed;
+	double oldX;
+	glm::mat4 oldRotate;
+	bool mousePressed;	
 };

@@ -18,7 +18,7 @@ static const size_t DIM = 16;
 //----------------------------------------------------------------------------------------
 // Constructor
 A1::A1()
-	: current_col( 0 ), gridInfo(DIM), currX(0.0f), currY(0.0f), shiftKeyPressed(false)
+	: current_col( 0 ), gridInfo(DIM), currX(0.0f), currY(0.0f), shiftKeyPressed(false), mousePressed(false)
 {		
 }
 
@@ -293,7 +293,7 @@ void A1::drawCubes(mat4 W) {
 			}
 			for (int k = 0; k < height; k++) {
 				mat4 T = glm::translate(W, vec3(i, k, j));
-				glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( T ) );
+				glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( oldRotate * T) );
 				int colourIndex = gridInfo.getColour(i, j);
 				glUniform3f( col_uni, colours[colourIndex][0], colours[colourIndex][1], colours[colourIndex][2] );
                 		glDrawElements( GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
@@ -317,7 +317,7 @@ void A1::draw()
 
 		glUniformMatrix4fv( P_uni, 1, GL_FALSE, value_ptr( proj ) );
 		glUniformMatrix4fv( V_uni, 1, GL_FALSE, value_ptr( view ) );
-		glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( W ) );
+		glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( oldRotate * W ) );
 
 		// Just draw the grid for now.
 		glBindVertexArray( m_grid_vao );
@@ -333,7 +333,7 @@ void A1::draw()
 
 		glBindVertexArray(m_square_vao);
 		W = glm::translate( W, vec3(currX, gridInfo.getHeight(currX, currY), currY));
-		glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( W ) );
+		glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( oldRotate * W ) );
 		glUniform3f( col_uni, 0, 0, 0 );
 		glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		 
@@ -381,6 +381,12 @@ bool A1::mouseMoveEvent(double xPos, double yPos)
 		// Probably need some instance variables to track the current
 		// rotation amount, and maybe the previous X position (so 
 		// that you can rotate relative to the *change* in X.
+		if (mousePressed) {
+			double xDiff = xPos - oldX;	
+			oldRotate = glm::rotate( oldRotate, glm::radians(((float)xDiff)/2), glm::vec3(0.0f, 1.0f, 0.0f)) ;
+		}
+		oldX = xPos;
+		eventHandled = true;
 	}
 
 	return eventHandled;
@@ -393,10 +399,20 @@ bool A1::mouseMoveEvent(double xPos, double yPos)
 bool A1::mouseButtonInputEvent(int button, int actions, int mods) {
 	bool eventHandled(false);
 
+	if (actions == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_LEFT) {
+		mousePressed = false;
+		eventHandled = true;
+	}
 	if (!ImGui::IsMouseHoveringAnyWindow()) {
 		// The user clicked in the window.  If it's the left
-		// mouse button, initiate a rotation.
+                // mouse button, initiate a rotation.
+		if (button == GLFW_MOUSE_BUTTON_LEFT && actions == GLFW_PRESS) {
+			mousePressed = true;
+			eventHandled = true;
+			// oldX = ????
+		}
 	}
+
 
 	return eventHandled;
 }
