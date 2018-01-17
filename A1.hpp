@@ -59,10 +59,18 @@ private:
 	glm::mat4 proj;
 	glm::mat4 view;
 
-	float colour[3];
 	int current_col;
 	Grid gridInfo;
 	float currX;
 	float currY;
-	
+	float colours[8][3] = {
+                { 1.0f, 1.0f, 1.0f },
+                { 1.0f, 0.0f, 0.0f },
+                { 0.0f, 1.0f, 0.0f },
+                { 0.0f, 0.0f, 1.0f },
+                { 1.0f, 1.0f, 0.0f },
+                { 1.0f, 0.0f, 1.0f },
+                { 0.0f, 1.0f, 1.0f },
+                { 0.5f, 0.5f, 1.0f }
+        };	
 };

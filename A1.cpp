@@ -7,6 +7,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <map>
+
 
 using namespace glm;
 using namespace std;
@@ -17,10 +19,7 @@ static const size_t DIM = 16;
 // Constructor
 A1::A1()
 	: current_col( 0 ), gridInfo(DIM), currX(0.0f), currY(0.0f)
-{
-	colour[0] = 0.0f;
-	colour[1] = 0.0f;
-	colour[2] = 0.0f;
+{		
 }
 
 //----------------------------------------------------------------------------------------
@@ -254,13 +253,17 @@ void A1::guiLogic()
 		// Prefixing a widget name with "##" keeps it from being
 		// displayed.
 
-		ImGui::PushID( 0 );
-		ImGui::ColorEdit3( "##Colour", colour );
-		ImGui::SameLine();
-		if( ImGui::RadioButton( "##Col", &current_col, 0 ) ) {
-			// Select this colour.
+		for (int i = 0; i < 8; i++) {
+			ImGui::PushID( i );
+                	ImGui::ColorEdit3( "##Colour", colours[i] );
+                	ImGui::SameLine();
+                	if( ImGui::RadioButton( "##Col", &current_col, i ) ) {
+                        	if (gridInfo.getHeight(currX, currY) > 0) {
+                                	gridInfo.setColour(currX, currY, current_col);
+                        	}
+                	}
+                	ImGui::PopID();
 		}
-		ImGui::PopID();
 
 /*
 		// For convenience, you can uncomment this to show ImGui's massive
@@ -291,6 +294,8 @@ void A1::drawCubes(mat4 W) {
 			for (int k = 0; k < height; k++) {
 				mat4 T = glm::translate(W, vec3(i, k, j));
 				glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( T ) );
+				int colourIndex = gridInfo.getColour(i, j);
+				glUniform3f( col_uni, colours[colourIndex][0], colours[colourIndex][1], colours[colourIndex][2] );
                 		glDrawElements( GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 			}
 		}
@@ -447,6 +452,9 @@ bool A1::keyInputEvent(int key, int action, int mods) {
                 }
 		if (key == GLFW_KEY_SPACE) {
 			int oldHeight = gridInfo.getHeight(currX, currY);
+			if (oldHeight == 0) {
+				gridInfo.setColour(currX, currY, current_col);
+			}
                         gridInfo.setHeight(currX, currY, oldHeight + 1);
                         eventHandled = true;
                 }
