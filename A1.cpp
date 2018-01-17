@@ -18,7 +18,7 @@ static const size_t DIM = 16;
 //----------------------------------------------------------------------------------------
 // Constructor
 A1::A1()
-	: current_col( 0 ), gridInfo(DIM), currX(0.0f), currY(0.0f)
+	: current_col( 0 ), gridInfo(DIM), currX(0.0f), currY(0.0f), shiftKeyPressed(false)
 {		
 }
 
@@ -432,23 +432,68 @@ bool A1::windowResizeEvent(int width, int height) {
 bool A1::keyInputEvent(int key, int action, int mods) {
 	bool eventHandled(false);
 
+	if (action == GLFW_RELEASE && (key == GLFW_KEY_RIGHT_SHIFT || key == GLFW_KEY_LEFT_SHIFT)) {
+		shiftKeyPressed = false;
+		eventHandled = true;
+	}
+
 	// Fill in with event handling code...
 	if( action == GLFW_PRESS ) {
-		if (key == GLFW_KEY_UP) {
-			currY = currY - (1.0);
+		if (key == GLFW_KEY_RIGHT_SHIFT || key == GLFW_KEY_LEFT_SHIFT) {
+			shiftKeyPressed = true;	
 			eventHandled = true;
+		}
+		if (key == GLFW_KEY_UP) {
+			if (currY == 0) {
+				eventHandled = true;
+			}	
+			else {
+				if (shiftKeyPressed) {
+					gridInfo.setHeight(currX, currY - (1.0), gridInfo.getHeight(currX, currY));
+					gridInfo.setColour(currX, currY - (1.0), gridInfo.getColour(currX, currY));
+				}
+				currY = currY - (1.0);
+				eventHandled = true;
+			}
 		}
 		if (key == GLFW_KEY_DOWN) {
-			currY = currY + (1.0);
-			eventHandled = true;
+			if (currY == (DIM - 1)) {
+				eventHandled = true;
+			}
+			else {
+				if (shiftKeyPressed) {
+                                        gridInfo.setHeight(currX, currY + (1.0), gridInfo.getHeight(currX, currY));
+                                        gridInfo.setColour(currX, currY + (1.0), gridInfo.getColour(currX, currY));
+                                }
+				currY = currY + (1.0);
+				eventHandled = true;
+			}
 		}
 		if (key == GLFW_KEY_LEFT) {
-                        currX = currX - (1.0);
-                        eventHandled = true;
+			if (currX == 0) {
+				eventHandled = true;
+			}
+			else {
+				if (shiftKeyPressed) {
+                                        gridInfo.setHeight(currX - (1.0), currY, gridInfo.getHeight(currX, currY));
+                                        gridInfo.setColour(currX - (1.0), currY, gridInfo.getColour(currX, currY));
+                                }
+                        	currX = currX - (1.0);
+                        	eventHandled = true;
+			}
                 }
 		if (key == GLFW_KEY_RIGHT) {
-                        currX = currX + (1.0);
-                        eventHandled = true;
+			if (currX == (DIM - 1)) {
+				eventHandled = true;
+			}
+			else {
+				if (shiftKeyPressed) {
+                                        gridInfo.setHeight(currX + (1.0), currY, gridInfo.getHeight(currX, currY));
+                                        gridInfo.setColour(currX + (1.0), currY, gridInfo.getColour(currX, currY));
+                                }	
+                        	currX = currX + (1.0);
+                        	eventHandled = true;
+			}
                 }
 		if (key == GLFW_KEY_SPACE) {
 			int oldHeight = gridInfo.getHeight(currX, currY);
