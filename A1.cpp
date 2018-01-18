@@ -554,6 +554,14 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 			}
                         eventHandled = true;
                 }
+		if (key == GLFW_KEY_Q) {
+			glfwSetWindowShouldClose(m_window, GL_TRUE);
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_R) {
+			reset();
+			eventHandled = true;
+		}
 	}
 	return eventHandled;
 }
