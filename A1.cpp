@@ -67,6 +67,16 @@ void A1::init()
 		glm::radians( 45.0f ),
 		float( m_framebufferWidth ) / float( m_framebufferHeight ),
 		1.0f, 1000.0f );
+}
+
+void A1::reset() 
+{
+	current_col = 0;
+	gridInfo.reset();
+	currX = 0;
+	currY = 0;
+	oldRotate = mat4(1.0f);
+	oldY = 8;
 }	
 
 void A1::initCube()
@@ -243,6 +253,10 @@ void A1::guiLogic()
 		if( ImGui::Button( "Quit Application" ) ) {
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
 		}
+		if( ImGui::Button( "Reset" ) ) {
+                        reset();
+                }
+
 
 		// Eventually you'll create multiple colour widgets with
 		// radio buttons.  If you use PushID/PopID to give them all

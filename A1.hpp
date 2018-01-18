@@ -30,11 +30,14 @@ protected:
 	virtual bool keyInputEvent(int key, int action, int mods) override;
 
 private:
+
 	void initGrid();
 
 	void initCube();
 	void drawCubes(glm::mat4 W, glm::mat4 S);
 	void initSquare();
+
+	void reset();
 
 	// Fields related to the shader and uniforms.
 	ShaderProgram m_shader;
