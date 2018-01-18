@@ -33,7 +33,7 @@ private:
 	void initGrid();
 
 	void initCube();
-	void drawCubes(glm::mat4 W);
+	void drawCubes(glm::mat4 W, glm::mat4 S);
 	void initSquare();
 
 	// Fields related to the shader and uniforms.
@@ -76,5 +76,6 @@ private:
 	bool shiftKeyPressed;
 	double oldX;
 	glm::mat4 oldRotate;
+	double oldY;
 	bool mousePressed;	
 };

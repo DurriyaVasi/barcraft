@@ -18,7 +18,7 @@ static const size_t DIM = 16;
 //----------------------------------------------------------------------------------------
 // Constructor
 A1::A1()
-	: current_col( 0 ), gridInfo(DIM), currX(0.0f), currY(0.0f), shiftKeyPressed(false), mousePressed(false)
+	: current_col( 0 ), gridInfo(DIM), currX(0.0f), currY(0.0f), shiftKeyPressed(false), mousePressed(false), oldY(1)
 {		
 }
 
@@ -284,7 +284,7 @@ void A1::guiLogic()
 	}
 }
 
-void A1::drawCubes(mat4 W) {
+void A1::drawCubes(mat4 W, mat4 S) {
 	for (int i = 0; i < DIM; i++) {
 		for (int j = 0; j < DIM; j++) {
 			int height = gridInfo.getHeight(i, j);
@@ -293,7 +293,7 @@ void A1::drawCubes(mat4 W) {
 			}
 			for (int k = 0; k < height; k++) {
 				mat4 T = glm::translate(W, vec3(i, k, j));
-				glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( oldRotate * T) );
+				glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( S * oldRotate * T) );
 				int colourIndex = gridInfo.getColour(i, j);
 				glUniform3f( col_uni, colours[colourIndex][0], colours[colourIndex][1], colours[colourIndex][2] );
                 		glDrawElements( GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
@@ -310,14 +310,16 @@ void A1::draw()
 {
 	// Create a global transformation for the model (centre it).
 	mat4 W;
+	mat4 S;
 	W = glm::translate( W, vec3( -float(DIM)/2.0f, 0, -float(DIM)/2.0f ) );
+	S = glm::scale(S, vec3((float)oldY, (float)oldY, (float)oldY));
 
 	m_shader.enable();
 		glEnable( GL_DEPTH_TEST );
 
 		glUniformMatrix4fv( P_uni, 1, GL_FALSE, value_ptr( proj ) );
 		glUniformMatrix4fv( V_uni, 1, GL_FALSE, value_ptr( view ) );
-		glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( oldRotate * W ) );
+		glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( S * oldRotate * W ) );
 
 		// Just draw the grid for now.
 		glBindVertexArray( m_grid_vao );
@@ -326,14 +328,14 @@ void A1::draw()
 
 		// Draw the cubes
 		glBindVertexArray( m_cube_vao );
-		drawCubes(W);
+		drawCubes(W, S);
 
 		// Highlight the active square.
 		glDisable( GL_DEPTH_TEST );
 
 		glBindVertexArray(m_square_vao);
 		W = glm::translate( W, vec3(currX, gridInfo.getHeight(currX, currY), currY));
-		glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( oldRotate * W ) );
+		glUniformMatrix4fv( M_uni, 1, GL_FALSE, value_ptr( S * oldRotate * W ) );
 		glUniform3f( col_uni, 0, 0, 0 );
 		glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		 
@@ -424,7 +426,18 @@ bool A1::mouseButtonInputEvent(int button, int actions, int mods) {
 bool A1::mouseScrollEvent(double xOffSet, double yOffSet) {
 	bool eventHandled(false);
 
-	// Zoom in or out.
+	double max = 2;
+	double min = 0.5;
+
+	if (yOffSet + oldY > max) {
+		oldY = max;
+	}
+	if (yOffSet + oldY < min) {
+		oldY = min;
+	}
+	else {
+		oldY = yOffSet + oldY;
+	} 
 
 	return eventHandled;
 }
