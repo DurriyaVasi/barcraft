@@ -18,7 +18,7 @@ static const size_t DIM = 16;
 //----------------------------------------------------------------------------------------
 // Constructor
 A1::A1()
-	: current_col( 0 ), gridInfo(DIM), currX(0.0f), currY(0.0f), shiftKeyPressed(false), mousePressed(false), oldY(1)
+	: current_col( 0 ), gridInfo(DIM), currX(0.0f), currY(0.0f), shiftKeyPressed(false), mousePressed(false), oldY(8)
 {		
 }
 
@@ -312,7 +312,8 @@ void A1::draw()
 	mat4 W;
 	mat4 S;
 	W = glm::translate( W, vec3( -float(DIM)/2.0f, 0, -float(DIM)/2.0f ) );
-	S = glm::scale(S, vec3((float)oldY, (float)oldY, (float)oldY));
+	float scaleAmount = ((float)oldY)/(8.0f);
+	S = glm::scale(S, vec3(scaleAmount, scaleAmount, scaleAmount));
 
 	m_shader.enable();
 		glEnable( GL_DEPTH_TEST );
@@ -426,8 +427,8 @@ bool A1::mouseButtonInputEvent(int button, int actions, int mods) {
 bool A1::mouseScrollEvent(double xOffSet, double yOffSet) {
 	bool eventHandled(false);
 
-	double max = 2;
-	double min = 0.5;
+	double max = 16;
+	double min = 4;
 
 	if (yOffSet + oldY > max) {
 		oldY = max;
